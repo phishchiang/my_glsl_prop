@@ -9,6 +9,9 @@ void main() {
 const fshader = /* glsl */ `
 varying vec3 v_position;
 uniform vec3 u_myVal;
+uniform vec2 u_mouse;
+uniform vec2 u_resolution;
+uniform float u_time;
 
 void main (void)
 {
@@ -16,7 +19,7 @@ void main (void)
   // color.r = clamp(v_position.x, 0.0, 1.0);
   color.r = smoothstep(u_myVal.x,0.7 , v_position.x);
   // color.g = clamp(v_position.y, 0.0, 1.0);
-  color.g = step(u_myVal.y, v_position.y);
+  color.g = step(u_mouse.y/u_resolution.y, v_position.y);
 
   
   gl_FragColor = vec4(color, 1.0);
