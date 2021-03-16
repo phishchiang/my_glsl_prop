@@ -25,10 +25,14 @@ float rect(vec2 pt, vec2 size, vec2 center){
 
 void main (void)
 {
-  vec3 color = vec3(1.0, 1.0, 0.0) * rect(v_position.xy, vec2(1.0), vec2(0.0));
+  // vec3 color = vec3(1.0, 1.0, 0.0) * rect(v_position.xy, vec2(1.0, 4.0), vec2(0.0, 0.2));
+  float square1 =  rect(v_position.xy, vec2(1.0, 4.0), vec2(0.0, 0.2));
+  vec3 color1 = vec3(1.0, 1.0, 0.0) * square1;
 
+  float square2 =  rect(v_position.xy, vec2(1.0), vec2(-0.4, 0.2));
+  vec3 color2 = vec3(0.0, 1.0, 1.0) * square2;
   
-  gl_FragColor = vec4(color, 1.0);
+  gl_FragColor = vec4(color1 + color2, 1.0);
 }
 `;
 
