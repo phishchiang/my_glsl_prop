@@ -11,7 +11,22 @@ void main() {
 const fshader = /* glsl */ `
 varying vec3 v_position;
 varying vec2 v_uv;
+uniform vec2 u_mouse;
 uniform vec3 u_myVal;
+uniform float u_time;
+
+// if theta = 0 ; theta = 90; theta = 180 ; theta = 270
+// 1  0     0  1    -1  0     0  1
+// 0  1    -1  0     0 -1    -1  0
+mat2 getRotationMatrix(float theta){
+  float s = sin(theta);
+  float c = cos(theta);
+  return mat2(c, -s, s, c);
+  // 
+  // c -s
+  // s  c
+  // 
+}
 
 float rect(vec2 pt, vec2 size, vec2 center){
   //return 0 if not in box and 1 if it is
@@ -23,14 +38,22 @@ float rect(vec2 pt, vec2 size, vec2 center){
   return horz * vert;
 }
 
-void main (void)
-{
+void main (void){
+  float raduis = 0.5;
+  vec2 center0 = vec2(cos(u_time)* raduis, sin(u_time)* raduis);
+
   // vec3 color = vec3(1.0, 1.0, 0.0) * rect(v_position.xy, vec2(1.0, 4.0), vec2(0.0, 0.2));
-  float square1 =  rect(v_position.xy, vec2(1.0, 4.0), vec2(0.0, 0.2));
+  float square1 =  rect(v_position.xy, vec2(1.0, 4.0), center0);
   vec3 color1 = vec3(1.0, 1.0, 0.0) * square1;
 
-  float square2 =  rect(v_position.xy, vec2(1.0), vec2(-0.4, 0.2));
+  vec2 center1 = vec2(0.2, -0.5);
+  mat2 mat = getRotationMatrix(u_time);
+  // vec2 rotation_pt = mat * v_position.xy;
+  vec2 rotation_offset_pt = mat * ( v_position.xy - center1 ) + center1;
+  
+  float square2 =  rect(rotation_offset_pt, vec2(1.0), center1);
   vec3 color2 = vec3(0.0, 1.0, 1.0) * square2;
+
   
   gl_FragColor = vec4(color1 + color2, 1.0);
 }
@@ -69,12 +92,12 @@ camera.position.z = 1;
 
 function myFunctionX(val) {
   console.log(val);
-  uniforms.u_myVal.value.x = val / 100;
+  uniforms.u_myVal.value.x = val;
 }
 
 function myFunctionY(val) {
   console.log(val);
-  uniforms.u_myVal.value.y = val / 100;
+  uniforms.u_myVal.value.y = val;
 }
 
 onWindowResize();
