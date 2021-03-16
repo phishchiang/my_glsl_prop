@@ -16,7 +16,7 @@ uniform vec3 u_myVal;
 float rect(vec2 pt, vec2 size, vec2 center){
   //return 0 if not in box and 1 if it is
   //step(edge, x) 0.0 is returned if x < edge, and 1.0 is returned otherwise.
-  vec2 halfsize = size * 0.5;
+  vec2 halfsize = size * 0.1;
   vec2 p = pt - center;
   float horz = step(-halfsize.x, p.x) - step(halfsize.x, p.x);
   float vert = step(-halfsize.y, p.y) - step(halfsize.y, p.y);

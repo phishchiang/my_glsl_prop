@@ -1,4 +1,4 @@
-const vshader = `
+const vshader = /* glsl */ `
 varying vec3 v_position;
 
 void main() {	
@@ -6,7 +6,7 @@ void main() {
   gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 }
 `;
-const fshader = `
+const fshader = /* glsl */ `
 varying vec3 v_position;
 uniform vec3 u_myVal;
 
