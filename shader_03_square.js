@@ -15,7 +15,7 @@ uniform vec2 u_mouse;
 uniform vec3 u_myVal;
 uniform float u_time;
 
-// if theta = 0 ; theta = 90; theta = 180 ; theta = 270
+// if θ = 0 ; θ = 90; θ = 180 ; θ = 270
 // 1  0     0  1    -1  0     0  1
 // 0  1    -1  0     0 -1    -1  0
 mat2 getRotationMatrix(float theta){
@@ -23,8 +23,8 @@ mat2 getRotationMatrix(float theta){
   float c = cos(theta);
   return mat2(c, -s, s, c);
   // 
-  // c -s
-  // s  c
+  // cosθ -sinθ
+  // sinθ  cosθ
   // 
 }
 
@@ -48,10 +48,10 @@ void main (void){
 
   vec2 center1 = vec2(0.2, -0.5);
   mat2 mat = getRotationMatrix(u_time);
-  // vec2 rotation_pt = mat * v_position.xy;
-  vec2 rotation_offset_pt = mat * ( v_position.xy - center1 ) + center1;
+  vec2 rotation_pt = mat * v_position.xy;
+  // vec2 rotation_offset_pt = mat * ( v_position.xy - center1 ) + center1;
   
-  float square2 =  rect(rotation_offset_pt, vec2(1.0), center1);
+  float square2 =  rect(rotation_pt, vec2(1.0), vec2(0.0));
   vec3 color2 = vec3(0.0, 1.0, 1.0) * square2;
 
   
