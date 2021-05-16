@@ -2,7 +2,7 @@ const vshader = /* glsl */ `
 varying vec3 v_position;
 varying vec2 v_uv;
 
-void main() {	
+void main() {
   v_position = position;
   v_uv = uv;
   gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
@@ -11,52 +11,52 @@ void main() {
 const fshader = /* glsl */ `
 varying vec3 v_position;
 varying vec2 v_uv;
-uniform vec2 u_mouse;
 uniform vec3 u_myVal;
-uniform float u_time;
 
-// if θ = 0 ; θ = 90; θ = 180 ; θ = 270
-// 1  0     0  1    -1  0     0  1
-// 0  1    -1  0     0 -1    -1  0
-mat2 getRotationMatrix(float theta){
-  float s = sin(theta);
-  float c = cos(theta);
-  return mat2(c, -s, s, c);
-  // 
-  // cosθ -sinθ
-  // sinθ  cosθ
-  // 
-}
-
-float rect(vec2 pt, vec2 size, vec2 center){
-  //return 0 if not in box and 1 if it is
-  //step(edge, x) 0.0 is returned if x < edge, and 1.0 is returned otherwise.
-  vec2 halfsize = size * 0.5;
+float basic_circle(vec2 pt, vec2 center, float radius){
   vec2 p = pt - center;
-  float horz = step(-halfsize.x, p.x) - step(halfsize.x, p.x);
-  float vert = step(-halfsize.y, p.y) - step(halfsize.y, p.y);
-  return horz * vert;
+  return 1.0 - step(radius, length(p));
 }
 
-void main (void){
-  vec2 uv_tile_count = vec2(6.0);
-  // float raduis = 0.5;
-  // vec2 center0 = vec2(cos(u_time)* raduis, sin(u_time)* raduis);
+float soften_circle(vec2 pt, vec2 center, float radius, bool soften){
+  vec2 p = pt - center;
+  float edge = (soften) ? radius * 0.5 : 0.0;
+  return 1.0 - smoothstep(radius-edge, radius+edge, length(p));
+}
 
-  // vec3 color = vec3(1.0, 1.0, 0.0) * rect(v_position.xy, vec2(1.0, 4.0), vec2(0.0, 0.2));
-  // float square1 =  rect(v_position.xy, vec2(1.0, 4.0), center0);
-  // vec3 color1 = vec3(1.0, 1.0, 0.0) * square1;
+float advanced_circle(vec2 pt, vec2 center, float radius, float line_width, bool soften){
+  vec2 p = pt - center;
+  float len = length(p);
+  float half_line_width = line_width / 2.0;
+  float edge = (soften) ? radius * 0.05 : 0.0;
+  return smoothstep(radius-half_line_width-edge, radius-half_line_width, len) - smoothstep(radius+half_line_width, radius+half_line_width+edge, len);
+}
 
-  vec2 center1 = vec2(0.5);
-  mat2 mat = getRotationMatrix(u_time);
-  vec2 p = fract( v_uv * uv_tile_count );
-  vec2 rotation_offset_pt = mat * ( p - center1 ) + center1;
+float line(float a, float b, float line_width, float edge_thickness){
+  float half_line_width = line_width * 0.5;
+  return smoothstep(a-half_line_width-edge_thickness, a-half_line_width, b) - smoothstep(a+half_line_width, a+half_line_width+edge_thickness, b);
+}
+
+
+
+void main (void)
+{
+  // vec2 uv = gl_FragCoord.xy; // this is the pixel location in screen view coordinates
+  vec2 uv = v_uv; // Use UV value to try
+
+
+  // float newCircle = basic_circle( v_position.xy, vec2(0.0), 0.5 );
+  float newCircle = advanced_circle( v_position.xy, vec2(0.0), 0.5, 0.1, true );
   
-  float square2 =  rect(rotation_offset_pt, vec2(0.5), center1);
-  vec3 color2 = vec3(0.0, 1.0, 1.0) * square2;
-
+  // float inCircle = smoothstep(u_myVal.x,u_myVal.y, length(v_position.xy));
+  // float newLine = line( v_position.x, v_position.y , 0.002, 0.001 );
+  // float newLine = line( v_position.y, mix(-0.5, 0.5, (sin(v_position.x * 3.1415) +1.0)/2.0), 0.05, 0.01 ); // use v_position
+  float newLine = line( v_uv.y, mix( 0.2, 0.8, (sin(v_position.x * 3.1415) +1.0)/2.0), 0.05, 0.01 ); // use v_uv
   
-  gl_FragColor = vec4(color2, 1.0);
+
+  vec3 color = vec3(1.0, 1.0, 0.0)* newLine ;
+  
+  gl_FragColor = vec4(color, 1.0);
 }
 `;
 
@@ -93,12 +93,12 @@ camera.position.z = 1;
 
 function myFunctionX(val) {
   console.log(val);
-  uniforms.u_myVal.value.x = val;
+  uniforms.u_myVal.value.x = val / 100;
 }
 
 function myFunctionY(val) {
   console.log(val);
-  uniforms.u_myVal.value.y = val;
+  uniforms.u_myVal.value.y = val / 100;
 }
 
 onWindowResize();
